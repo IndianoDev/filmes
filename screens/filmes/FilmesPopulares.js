@@ -1,39 +1,40 @@
-import React, { useState } from 'react'
-import { Button, Card, Text } from 'react-native-paper';
-import apiFilmes from '../../services/apiFilmes';
+import React, { useEffect, useState } from 'react'
+import { Card, Text } from 'react-native-paper'
+import apiFilmes from '../../services/apiFilmes'
 
 
-const FilmesPopulares = () => {
+const FilmesPopulares = ({navigation}) => {
 
-  const [filmes, setFilmes] = useState([])
+    const [filmes, setFilmes] = useState([])
+   
 
-  function carregar() {
+    useEffect(() => {
+        apiFilmes.get('/movie/popular').then(resultado => {
+            setFilmes(resultado.data.results)
+        })
+    },[])
 
-    apiFilmes.get('/movie/popular?language=pt-BR').then(resultado => {
-      setFilmes(resultado.data.results)
-    })
-  }
+    return (
+        <>
 
-  return (
-    <>
-      <Button onPress={carregar}>Carregar Filmes</Button>
+            {filmes.map(item => (
+                <>
+                    <Card 
+                    key={item.id} 
+                    onPress={() => navigation.push('Filmes-Detalhes', {id: item.id})} 
+                    style={{marginBottom:15}}>
 
-      {filmes.map(item => (
+                        <Card.Cover source={{ uri: 'https://image.tmdb.org/t/p/w500/' + item.backdrop_path }} />
+                        <Card.Content>
+                            <Text variant="titleLarge">{item.title}</Text>
+                            <Text variant="bodyMedium">{item.overview}</Text>
+                        </Card.Content>
 
-        <Card> 
-          <Card.Cover source={{ uri: 'https://image.tmdb.org/t/p/w500/' + item.backdrop_path}} />
-          <Card.Content>
-            <Text variant="titleLarge">{item.title}</Text>
-            <Text variant="bodyMedium">{item.overview}</Text>
-          </Card.Content>
-
-        </Card>
-
-      ))}
-
-    </>
-  )
+                    </Card>
+                </>
+            ))}
+        </>
+    )
 }
 
 export default FilmesPopulares
-
